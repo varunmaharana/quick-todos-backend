@@ -1,0 +1,42 @@
+{
+    "name": "quick-todos-backend",
+    "version": "1.0.0",
+    "description": "Backend for a todo list application with some fancy features and basic auth.",
+    "main": "index.ts",
+    "scripts": {
+        "dev": "nodemon --watch src --ext ts --exec ts-node src/index.ts",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/varunmaharana/quick-todos-backend.git"
+    },
+    "keywords": [
+        "node",
+        "typescript",
+        "express",
+        "javascript"
+    ],
+    "author": "Varun Maharana",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/varunmaharana/quick-todos-backend/issues"
+    },
+    "homepage": "https://github.com/varunmaharana/quick-todos-backend#readme",
+    "dependencies": {
+        "cors": "^2.8.5",
+        "dotenv": "^16.5.0",
+        "express": "^5.1.0",
+        "mongoose": "^8.16.0"
+    },
+    "devDependencies": {
+        "@types/cors": "^2.8.19",
+        "@types/express": "^5.0.3",
+        "@types/node": "^24.0.3",
+        "nodemon": "^3.1.10",
+        "prettier": "^3.5.3",
+        "ts-node": "^10.9.2",
+        "ts-node-dev": "^2.0.0",
+        "typescript": "^5.8.3"
+    }
+}
