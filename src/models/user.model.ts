@@ -1,4 +1,4 @@
-import mongoose, { Document, Model, Schema } from "mongoose";
+import mongoose, { Document, Model, Schema, Types } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt, { SignOptions } from "jsonwebtoken";
 import { ApiError } from "../utils/ApiError";
@@ -6,9 +6,11 @@ import { ApiError } from "../utils/ApiError";
 export interface UserMethods {
     generateAccessToken(): string;
     generateRefreshToken(): string;
+    isPasswordCorrect(password: string): Promise<boolean>;
 }
 
 export interface UserI extends Document, UserMethods {
+    _id: Types.ObjectId;
     name?: string;
     username: string;
     email: string;
@@ -60,7 +62,9 @@ userSchema.pre("save", async function (next) {
 });
 
 // Custom method that check is password is correct
-userSchema.methods.isPasswordCorrect = async function (password: string) {
+userSchema.methods.isPasswordCorrect = async function (
+    password: string
+): Promise<boolean> {
     return await bcrypt.compare(password, this.password);
 };
 

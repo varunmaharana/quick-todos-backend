@@ -1,11 +1,15 @@
+import { Types } from "mongoose";
 import { Request, Response } from "express";
 import { asyncHandler } from "../utils/asyncHandler";
 import { User, UserI } from "../models/user.model";
 import { ApiError } from "../utils/ApiError";
 import { ApiResponse } from "../utils/ApiResponse";
+import jwt from "jsonwebtoken";
 
 // Dedicated function to generate both access and refresh tokens
-const generateAccessAndRefreshTokens = async (userId: string) => {
+const generateAccessAndRefreshTokens = async (
+    userId: Types.ObjectId | string
+) => {
     try {
         const user = await User.findById(userId);
 
@@ -75,8 +79,124 @@ export const signUpUser = asyncHandler(async (req: Request, res: Response) => {
     );
 });
 
-export const loginUser = asyncHandler(
+export const loginUser = asyncHandler(async (req: Request, res: Response) => {
+    const { username, password } = req.body;
+
+    console.log("LOGIN: ", req.body);
+
+    // Fetch user from db
+    const user = await User.findOne({ username });
+
+    // If user is not found, throw error
+    if (!user) {
+        throw new ApiError({
+            statusCode: 404,
+            message: "User does not exist",
+        });
+    }
+
+    // Check password
+    const isPasswordCorrect = await user.isPasswordCorrect(password);
+    if (!isPasswordCorrect) {
+        throw new ApiError({
+            statusCode: 401,
+            message: "Invalid credentials",
+        });
+    }
+
+    // Generate access and refresh tokens
+    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
+        user._id
+    );
+
+    const loggedInUser = await User.findById(user._id).select(
+        "-password -refreshToken"
+    );
+
+    const cookieOptions = {
+        httpOnly: true,
+        secure: true,
+    };
+
+    return res
+        .status(201)
+        .cookie("accessToken", accessToken, cookieOptions)
+        .cookie("refreshToken", refreshToken, cookieOptions)
+        .json(
+            new ApiResponse({
+                statusCode: 201,
+                message: "Login successful!",
+                data: {
+                    user: loggedInUser,
+                    accessToken,
+                    refreshToken,
+                },
+            })
+        );
+});
+
+export const refreshAccessToken = asyncHandler(
     async (req: Request, res: Response) => {
-        
+        const incomingRefreshToken =
+            req.cookies?.refreshToken || req.body?.refreshToken;
+
+        if (!incomingRefreshToken) {
+            throw new ApiError({
+                statusCode: 401,
+                message: "Unauthorized request",
+            });
+        }
+
+        try {
+            const decodedToken = jwt.verify(
+                incomingRefreshToken,
+                process.env.REFRESH_TOKEN_SECRET as string
+            );
+
+            if (typeof decodedToken === "string" || !("_id" in decodedToken)) {
+                throw new ApiError({
+                    statusCode: 401,
+                    message: "Invalid refresh token",
+                });
+            }
+
+            const user = await User.findById(decodedToken?._id);
+
+            if (!user) {
+                throw new ApiError({
+                    statusCode: 401,
+                    message: "Invalid refresh token",
+                });
+            }
+
+            if (incomingRefreshToken !== user?.refreshToken) {
+                throw new ApiError({
+                    statusCode: 401,
+                    message: "Refresh token is expired or used",
+                });
+            }
+
+            const options = {
+                httpOnly: true,
+                secure: true,
+            };
+            const { accessToken, refreshToken } =
+                await generateAccessAndRefreshTokens(user._id);
+
+            return res
+                .status(200)
+                .cookie("accessToken", accessToken, options)
+                .cookie("refreshToken", refreshToken, options)
+                .json(
+                    new ApiResponse({
+                        statusCode: 201,
+                        message: "Login successful!",
+                        data: {
+                            accessToken,
+                            refreshToken,
+                        },
+                    })
+                );
+        } catch (error) {}
     }
 );
