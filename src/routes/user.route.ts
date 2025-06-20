@@ -1,10 +1,12 @@
 import { Router } from "express";
-import { signUpUser } from "../controllers/user.controller";
+import { validate } from "../middlewares/validate.middleware";
+import { loginUser, signUpUser } from "../controllers/user.controller";
+import { loginSchema, signUpSchema } from "../validators/user.validator";
 
 const userRouter = Router();
 
-userRouter.route("/signUp").post(signUpUser);
-// userRouter.route("/login").post(signUp);
+userRouter.route("/signUp").post(validate(signUpSchema), signUpUser);
+userRouter.route("/login").post(validate(loginSchema), loginUser);
 // userRouter.route("/updateDetails").post(signUp);
 // userRouter.route("/signUp").post(signUp);
 // userRouter.route("/signUp").post(signUp);
