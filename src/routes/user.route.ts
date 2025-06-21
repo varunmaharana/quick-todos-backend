@@ -1,7 +1,7 @@
 import { verifyJWT } from './../middlewares/auth.middleware';
 import { Router } from "express";
 import { validate } from "../middlewares/validate.middleware";
-import { loginUser, refreshAccessToken, signUpUser } from "../controllers/user.controller";
+import { loginUser, logoutUser, refreshAccessToken, signUpUser } from "../controllers/user.controller";
 import { loginSchema, signUpSchema } from "../validators/user.validator";
 
 const userRouter = Router();
@@ -13,7 +13,7 @@ userRouter.route("/login").post(validate(loginSchema), loginUser);
 
 // Secure
 userRouter.route("/refreshToken").post(refreshAccessToken);
-// userRouter.route("/logout").post(validate(loginSchema), loginUser);
+userRouter.route("/logout").post(verifyJWT, logoutUser);
 // Secure
 
 

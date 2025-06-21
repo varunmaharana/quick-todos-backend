@@ -25,6 +25,9 @@ const generateAccessAndRefreshTokens = async (
         const accessToken = typedUser.generateAccessToken();
         const refreshToken = typedUser.generateRefreshToken();
 
+        user.refreshToken = refreshToken;
+        await user.save({ validateBeforeSave: false });
+
         return { accessToken, refreshToken };
     } catch (error) {
         const err = error as Error;
@@ -81,8 +84,6 @@ export const signUpUser = asyncHandler(async (req: Request, res: Response) => {
 
 export const loginUser = asyncHandler(async (req: Request, res: Response) => {
     const { username, password } = req.body;
-
-    console.log("LOGIN: ", req.body);
 
     // Fetch user from db
     const user = await User.findOne({ username });
@@ -200,3 +201,37 @@ export const refreshAccessToken = asyncHandler(
         } catch (error) {}
     }
 );
+
+export const logoutUser = asyncHandler(async (req: Request, res: Response) => {
+    const { user } = req as Request & {
+        user: { _id: string };
+    };
+
+    await User.findByIdAndUpdate(
+        user._id,
+        {
+            $unset: {
+                refreshToken: 1,
+            },
+        },
+        {
+            new: true,
+        }
+    );
+
+    const options = {
+        httponly: true,
+        secure: true,
+    };
+    return res
+        .status(200)
+        .clearCookie("accessToken", options)
+        .clearCookie("refreshToken", options)
+        .json(
+            new ApiResponse({
+                statusCode: 200,
+                message: "Logout successful!",
+                data: {},
+            })
+        );
+});

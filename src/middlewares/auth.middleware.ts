@@ -43,7 +43,7 @@ export const verifyJWT = asyncHandler(
                 });
             }
 
-            (req as any).user = user;
+            (req as Request & { user: typeof user }).user = user;
 
             next();
         } catch (error) {
