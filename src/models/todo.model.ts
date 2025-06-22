@@ -30,11 +30,12 @@ const todoSchema = new Schema<TodoI>(
             type: Schema.Types.ObjectId,
             ref: "Todo",
         },
-        subTodos: {
-            type: [Schema.Types.ObjectId],
-            ref: "Todo",
-            default: [],
-        },
+        subTodos: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "Todo",
+            },
+        ],
         createdBy: {
             type: Schema.Types.ObjectId,
             ref: "User",
