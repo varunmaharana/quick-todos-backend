@@ -22,10 +22,12 @@ app.use(cookieParser());
 
 // Routes Imports
 import userRouter from "./routes/user.route";
+import todoRouter from "./routes/todo.route";
 // Routes Imports - END
 
 // Routes Declaration
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/todo", todoRouter);
 // Routes Declaration - END
 
 app.use(errorHandler);
