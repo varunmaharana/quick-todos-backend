@@ -7,8 +7,13 @@ import {
     logoutUser,
     refreshAccessToken,
     signUpUser,
+    updateUserDetails,
 } from "../controllers/user.controller";
-import { loginSchema, signUpSchema } from "../validators/user.validator";
+import {
+    loginSchema,
+    signUpSchema,
+    updateProfileSchema,
+} from "../validators/user.validator";
 
 const userRouter = Router();
 
@@ -23,6 +28,9 @@ userRouter.route("/logout").post(verifyJWT, logoutUser);
 userRouter
     .route("/getLoggedInUserDetails")
     .get(verifyJWT, getLoggedInUserDetails);
+userRouter
+    .route("/updateUserDetails")
+    .patch(verifyJWT, validate(updateProfileSchema), updateUserDetails);
 // Secure
 
 export default userRouter;

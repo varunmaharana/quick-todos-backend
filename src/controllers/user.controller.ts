@@ -252,9 +252,48 @@ export const getLoggedInUserDetails = asyncHandler(
         res.status(200).json(
             new ApiResponse({
                 statusCode: 201,
-                message: 'User details fetched successfully',
-                data: user
+                message: "User details fetched successfully",
+                data: user,
             })
-        )
+        );
+    }
+);
+
+export const updateUserDetails = asyncHandler(
+    async (req: Request, res: Response) => {
+        const { name, email, username } = req.body;
+
+        const { user } = req as Request & {
+            user: { _id: string };
+        };
+
+        if (!user) {
+            throw new ApiError({
+                statusCode: 404,
+                message: "User not found",
+            });
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(
+            user._id,
+            {
+                $set: {
+                    name,
+                    email,
+                    username,
+                },
+            },
+            {
+                new: true,
+            }
+        ).select("-password -refreshToken -__v");
+
+        res.status(200).json(
+            new ApiResponse({
+                statusCode: 201,
+                message: "User details updated successfully",
+                data: updatedUser,
+            })
+        );
     }
 );
