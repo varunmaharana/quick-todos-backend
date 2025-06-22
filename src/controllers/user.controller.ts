@@ -343,3 +343,28 @@ export const changeUserPassword = asyncHandler(
         );
     }
 );
+
+export const deleteUserDetails = asyncHandler(
+    async (req: Request, res: Response) => {
+        const { user } = req as Request & {
+            user: { _id: string };
+        };
+
+        if (!user) {
+            throw new ApiError({
+                statusCode: 404,
+                message: "User not found",
+            });
+        }
+
+        await User.findByIdAndDelete(user._id);
+
+        res.status(200).json(
+            new ApiResponse({
+                statusCode: 201,
+                message: "User details deleted successfully",
+                data: {},
+            })
+        );
+    }
+);

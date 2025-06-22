@@ -3,6 +3,7 @@ import { Router } from "express";
 import { validate } from "../middlewares/validate.middleware";
 import {
     changeUserPassword,
+    deleteUserDetails,
     getLoggedInUserDetails,
     loginUser,
     logoutUser,
@@ -36,6 +37,7 @@ userRouter
 userRouter
     .route("/changeUserPassword")
     .post(verifyJWT, validate(changePasswordSchema), changeUserPassword);
+userRouter.route("/deleteUserDetails").delete(verifyJWT, deleteUserDetails);
 // Secure
 
 export default userRouter;
