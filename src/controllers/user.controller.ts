@@ -235,3 +235,26 @@ export const logoutUser = asyncHandler(async (req: Request, res: Response) => {
             })
         );
 });
+
+export const getLoggedInUserDetails = asyncHandler(
+    async (req: Request, res: Response) => {
+        const { user } = req as Request & {
+            user: { _id: string };
+        };
+
+        if (!user) {
+            throw new ApiError({
+                statusCode: 404,
+                message: "User not found",
+            });
+        }
+
+        res.status(200).json(
+            new ApiResponse({
+                statusCode: 201,
+                message: 'User details fetched successfully',
+                data: user
+            })
+        )
+    }
+);

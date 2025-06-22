@@ -33,7 +33,7 @@ export const verifyJWT = asyncHandler(
             }
 
             const user = await User.findById(decodedToken?._id).select(
-                "-password -refreshToken"
+                "-password -refreshToken -__v"
             );
 
             if (!user) {
