@@ -2,6 +2,7 @@ import { verifyJWT } from "./../middlewares/auth.middleware";
 import { Router } from "express";
 import { validate } from "../middlewares/validate.middleware";
 import {
+    changeUserPassword,
     getLoggedInUserDetails,
     loginUser,
     logoutUser,
@@ -10,6 +11,7 @@ import {
     updateUserDetails,
 } from "../controllers/user.controller";
 import {
+    changePasswordSchema,
     loginSchema,
     signUpSchema,
     updateProfileSchema,
@@ -31,6 +33,9 @@ userRouter
 userRouter
     .route("/updateUserDetails")
     .patch(verifyJWT, validate(updateProfileSchema), updateUserDetails);
+userRouter
+    .route("/changeUserPassword")
+    .post(verifyJWT, validate(changePasswordSchema), changeUserPassword);
 // Secure
 
 export default userRouter;

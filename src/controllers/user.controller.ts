@@ -297,3 +297,49 @@ export const updateUserDetails = asyncHandler(
         );
     }
 );
+
+export const changeUserPassword = asyncHandler(
+    async (req: Request, res: Response) => {
+        const { currentPassword, newPassword } = req.body;
+
+        const { user } = req as Request & {
+            user: { _id: string };
+        };
+        if (!user) {
+            throw new ApiError({
+                statusCode: 404,
+                message: "User not found",
+            });
+        }
+
+        const currentUser = await User.findById(user._id);
+        if (!currentUser) {
+            throw new ApiError({
+                statusCode: 404,
+                message: "User not found",
+            });
+        }
+
+        const isPasswordCorrect =
+            await currentUser.isPasswordCorrect(currentPassword);
+
+        if (!isPasswordCorrect) {
+            throw new ApiError({
+                statusCode: 400,
+                message: "Invalid current password",
+            });
+        }
+
+        currentUser.password = newPassword;
+
+        await currentUser.save({ validateBeforeSave: false });
+
+        res.status(200).json(
+            new ApiResponse({
+                statusCode: 201,
+                message: "User password updated successfully",
+                data: {},
+            })
+        );
+    }
+);
