@@ -220,7 +220,7 @@ export const logoutUser = asyncHandler(async (req: Request, res: Response) => {
     );
 
     const options = {
-        httponly: true,
+        httpOnly: true,
         secure: true,
     };
     return res
